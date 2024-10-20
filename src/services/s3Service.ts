@@ -1,10 +1,15 @@
-import { S3Client } from '@aws-sdk/client-s3';
+import { S3Client, ObjectCannedACL } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+
+const BUCKET_NAME = "resumefeedback-media";
+const REGION_NAME = "us-east-2";
 
 const s3 = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-2',
+  region: REGION_NAME,
+
   /* credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -14,13 +19,25 @@ const s3 = new S3Client({
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Pad with 0 if single digit
+  const day = date.getDate().toString().padStart(2, '0'); // Pad with 0 if single digit
+  return `${year}-${month}-${day}`;
+};
+
 const uploadToS3 = async (file: Express.Multer.File) => {
-  const fileName = `${uuidv4()}-${file.originalname}`;
+  const ext = path.extname(file.originalname);
+  const formattedDate = formatDate(new Date());
+  const uniqueId = uuidv4();
+  const fileName = `resume_${formattedDate}_${uniqueId}${ext}`; 
+  
   const uploadParams = {
-    Bucket: process.env.AWS_BUCKET_NAME || 'resumefeedback-media',
+    Bucket: BUCKET_NAME,
     Key: fileName,
     Body: file.buffer,
     ContentType: file.mimetype,
+    ACL: 'public-read' as ObjectCannedACL,
   };
 
   const upload = new Upload({
@@ -29,7 +46,7 @@ const uploadToS3 = async (file: Express.Multer.File) => {
   });
 
   const result = await upload.done();
-  return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${result.Key}`;
+  return `https://${BUCKET_NAME}.s3.amazonaws.com/${result.Key}`;
 };
 
 export { upload, uploadToS3 };

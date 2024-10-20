@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import connectDB from './config/db';
 import authRoutes from './routes/authRoutes';
 import resumeRoutes from './routes/resumeRoutes';
+import commentRoutes from './routes/commentRoutes'
 import { errorHandler } from './middlewares/errorHandler ';
 
 dotenv.config();
@@ -27,8 +28,11 @@ app.use(helmet());
 app.use(limiter);
 
 app.use(cors());
+
 app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
+app.use('/api/comments', commentRoutes);
+
 app.use(errorHandler);
 
 app.get('/', (req, res) => {
