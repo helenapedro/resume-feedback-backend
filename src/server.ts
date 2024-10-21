@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes';
 import resumeRoutes from './routes/resumeRoutes';
 import commentRoutes from './routes/commentRoutes'
 import { errorHandler } from './middlewares/errorHandler ';
+import { requestLogger, errorLogger } from './middlewares/loggingMiddleware';
 
 const app = express();
 const limiter = rateLimit(rateLimitConfig);
@@ -17,6 +18,8 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(cors());
+app.use(requestLogger);
+app.use(errorLogger);
 
 app.use(limiter);
 

@@ -1,5 +1,6 @@
 import { AuthRequest } from '../middlewares/authMiddleware';
 import { Request, Response } from 'express';
+import { getCache, setCache, clearCache } from '../services/cacheService';
 import Comment from '../models/Comment';
 import Resume from '../models/Resume';
 
@@ -25,7 +26,9 @@ export const addComment = async (req: AuthRequest, res: Response): Promise<void>
       content,
     });
 
+    clearCache(resumeId);
     res.status(201).json(comment);
+    
   } catch (error) {
     res.status(500).json({ message: 'Server error', error });
   }
@@ -33,6 +36,12 @@ export const addComment = async (req: AuthRequest, res: Response): Promise<void>
 
 export const getCommentsByResume = async (req: Request, res: Response): Promise<void> => {
   const { resumeId } = req.params;
+  const cachedComments = getCache(resumeId);
+
+  if (cachedComments) {
+    res.status(200).json(cachedComments);
+    return;
+  }
 
   try {
     const comments = await Comment.find({ resumeId, isDeleted: false }).populate('commenterId', 'username');
@@ -41,6 +50,8 @@ export const getCommentsByResume = async (req: Request, res: Response): Promise<
       res.status(404).json({ message: 'No comments found for this resume' });
       return;
     }
+
+    setCache(resumeId, comments);
     res.status(200).json(comments);
 
   } catch (error) {
@@ -60,13 +71,16 @@ export const deleteComment = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    // Soft delete the comment
     comment.isDeleted = true;
     await comment.save();
 
+    clearCache(comment.resumeId.toString());
+
     res.status(200).json({ message: 'Comment deleted' });
   } catch (error) {
+
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
