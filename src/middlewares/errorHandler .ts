@@ -8,8 +8,10 @@ export const errorHandler = (
 ) => {
   console.error(err.stack); 
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   res.status(500).json({
     message: 'Internal Server Error',
-    error: err.message, 
+    ...(isProduction ? {} : { error: err.message }),
   });
 };
