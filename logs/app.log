@@ -1,0 +1,9 @@
+2024-10-21T09:57:36.503Z [info]: Server running on port 5000
+2024-10-21T10:03:03.392Z [info]: POST /api/auth/login 200 - 396ms
+2024-10-21T10:15:15.435Z [info]: Server running on port 5000
+2024-10-21T10:58:10.786Z [info]: Server running on port 5000
+2024-10-21T10:58:26.771Z [info]: POST /api/auth/login 200 - 187ms
+2024-10-21T10:59:07.294Z [info]: POST /api/resumes/upload 400 - 165ms
+2024-10-21T11:00:05.549Z [info]: POST /api/resumes/upload 201 - 6413ms
+2024-10-21T11:01:08.678Z [info]: POST /api/comments/add 401 - 12ms
+2024-10-21T11:01:38.457Z [info]: POST /api/comments/add 201 - 29ms
